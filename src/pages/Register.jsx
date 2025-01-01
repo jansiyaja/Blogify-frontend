@@ -2,6 +2,8 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { ROUTES } from '../routes/frontend_Api';
+import { Link } from 'react-router-dom';
 
 const schema = yup.object().shape({
   name: yup
@@ -41,7 +43,7 @@ const Register = () => {
       <div className="w-full max-w-md p-8 bg-white rounded shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6">Register</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
-          {/* Name Field */}
+        
           <div className="mb-4">
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
               Name
@@ -108,13 +110,20 @@ errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
             {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>}
           </div>
 
-          {/* Submit Button */}
+       
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
           >
             Register
-          </button>
+                  </button>
+                  
+                    <p className="text-center mt-4">
+                        Already have an account?{" "}
+                        <Link to={ROUTES.PUBLIC.LOGIN} className="text-blue-500 hover:underline">
+                            Sign In here
+                        </Link>
+                    </p>
         </form>
       </div>
     </div>
