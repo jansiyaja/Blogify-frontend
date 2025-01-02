@@ -1,11 +1,15 @@
 
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './components/Header'
-import { ROUTES } from './routes/Routes';
+
 import Register from './pages/Register';
 import Layout from './Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import Login from './pages/Login';
+import CreateBlog from './pages/Blog/CreateBlog';
+import { ROUTES } from './routes/frontend_Api';
+import Otp from './pages/Otp';
+import Home from './pages/Home';
 
 function App() {
 
@@ -15,15 +19,17 @@ function App() {
            <Router>
             <Routes>
               <Route element={<Layout/>}>
-              <Route path={ROUTES.PUBLIC.REGISTER} element={<Register/> } />
-              {/* <Route path={ROUTES.PUBLIC.OTP_VERIFICATION} element={<CommonPage page="otp" />} />
-              <Route path={ROUTES.PUBLIC.LOGIN} element={<CommonPage page="login" />} />
-            
-              <Route path={ROUTES.PUBLIC.HOME} element={<HomePage />} /> */}
+            <Route path={ROUTES.PUBLIC.REGISTER} element={<Register />} />
+            <Route path={ROUTES.PUBLIC.LOGIN} element={<Login/>} />
+            <Route path={ROUTES.PUBLIC.OTP_VERIFICATION} element={<Otp />} />
+               <Route path={ROUTES.PUBLIC.HOME} element={<Home/>} />
+           
+           
               
 
              
-              <Route element={<ProtectedRoute />}>
+            <Route element={<ProtectedRoute />}>
+               <Route path={ROUTES.PROTECTED.CREATE_BLOG} element={<CreateBlog/>} />
                 
 {/*                
               

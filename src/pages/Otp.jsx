@@ -3,12 +3,20 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { Button } from '@mui/material';
+import ErrorToast from '../components/ErrorToast';
+import { verifyOTP } from '../endpoints/useEndpoints';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../routes/frontend_Api';
 
 const Otp = () => {
   const [timer, setTimer] = useState(60);
   const [showResend, setShowResend] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const inputRefs = useRef([]);
+  const [toast, setToast] = useState(null)
+  const navigate=useNavigate()
+
+  
 
   useEffect(() => {
     const countdown = setInterval(() => {
@@ -47,9 +55,26 @@ const Otp = () => {
     setOtp(['', '', '', '', '', '']);
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
+    const email = localStorage.getItem("emailForVerification");
+   
+    
     const otpString = otp.join('');
     console.log('Verifying OTP:', otpString);
+    try {
+      const response = await verifyOTP({ otpString,email })
+        if(response.status ==201){
+          setToast({ message: "verified successfully", type: "success" });
+          navigate(ROUTES.PUBLIC.LOGIN)
+        } 
+      
+    
+    } catch (error) {
+      console.log(error);
+      
+       setToast({ message: "something went wrong", type: "error" });  
+    }
+
   };
 
   return (
@@ -112,6 +137,7 @@ const Otp = () => {
           </div>
         </CardContent>
       </Card>
+         {toast && <ErrorToast type={toast.type} message={toast.message} />}
     </div>
   );
 };

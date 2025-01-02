@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useQuill } from 'react-quilljs';
-
 import 'quill/dist/quill.snow.css';
+import { createBlog } from '../../endpoints/useEndpoints';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../routes/frontend_Api';
 
 const schema = yup.object().shape({
   heading: yup.string().required('Heading is required'),
@@ -21,6 +23,7 @@ const schema = yup.object().shape({
 const CreateBlog = () => {
   const { quill, quillRef } = useQuill();
   const [imagePreview, setImagePreview] = useState('');
+  const navigate=useNavigate()
   const [tags, setTags] = useState([
     'HTML',
     'JavaScript',
@@ -35,6 +38,7 @@ const CreateBlog = () => {
     control,
     formState: { errors },
     reset,
+    getValues,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -44,36 +48,55 @@ const CreateBlog = () => {
     },
   });
 
-  const onSubmit = async (data) => {
-    console.log('Form Data:', data);
-
-    const { heading, selectedTag, editorContent } = data;
-    const formData = new FormData();
-    formData.append('heading', heading);
-    formData.append('tag', selectedTag);
-    formData.append('content', editorContent);
-    formData.append('status', data.status || 'draft');
-
-    if (data.coverImage) {
-      formData.append('coverImage', data.coverImage[0]);
+  const savePost = async (isPublished) => {
+    const { heading, selectedTag, coverImage, editorContent } = getValues();
+    
+   
+    if (!editorContent || editorContent.trim() === '') {
+      console.error('No valid content to save.');
+      return;
     }
 
+    const formData = new FormData();
+    formData.append('heading', heading);  
+    formData.append('tag', selectedTag); 
+    if (coverImage) {
+      formData.append('coverImage', coverImage[0]);  
+    }
+    formData.append('content', editorContent);  
+
     try {
-      const response = await createBlogPost(formData);
-      if (response.status === 200) {
-        console.log('Post created successfully:', response.data); 
-        reset();
-        setImagePreview(null);
+      const status = isPublished ? 'published' : 'draft';
+      formData.append('status', status);  
+
+      const response = await createBlog(formData);
+
+
+      if (response.status === 201) {
+        reset(); 
+        navigate(ROUTES.PUBLIC.HOME)
+        console.log('Blog created successfully!');
+        
+ 
+        if (isPublished) {
+          setToastMessage('Blog published successfully!');
+        } else {
+          setToastMessage('Blog saved as a draft!');
+        }
+        setToastType('success');
+        setToastOpen(true);
+        setShowPreview(false);
       }
     } catch (error) {
-      console.error('Failed to save the post. Please try again.', error);
+console.log(error);
+
     }
   };
 
   return (
     <div className="min-h-screen bg-blue-50 flex items-center justify-center top-4">
       <div className="w-full max-w-4xl p-8 bg-white shadow-lg rounded-lg">
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(savePost)}>
           <div className="flex justify-between mb-4 mt-4">
             <h1 className="text-2xl font-bold text-gray-800">Create a New Blog Post</h1>
           </div>
@@ -110,9 +133,7 @@ const CreateBlog = () => {
               type="text"
               placeholder="Heading..."
               {...register('heading')}
-              className={`w-full p-4 text-3xl font-bold border rounded-md ${
-                errors.heading ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full p-4 text-3xl font-bold border rounded-md ${errors.heading ? 'border-red-500' : 'border-gray-300'}`}
             />
             {errors.heading && <p className="text-red-500 text-sm">{errors.heading.message}</p>}
           </div>
@@ -121,9 +142,7 @@ const CreateBlog = () => {
             <label className="block text-lg font-medium text-gray-700">Select Tag</label>
             <select
               {...register('selectedTag')}
-              className={`w-full p-3 border rounded-md ${
-                errors.selectedTag ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full p-3 border rounded-md ${errors.selectedTag ? 'border-red-500' : 'border-gray-300'}`}
             >
               <option value="">Select a tag</option>
               {tags.map((tag, index) => (
@@ -158,14 +177,14 @@ const CreateBlog = () => {
           <div className="flex justify-between mt-4">
             <button
               type="button"
-              onClick={() => handleSubmit((data) => onSubmit({ ...data, status: 'draft' }))()}
+              onClick={() => handleSubmit((data) => savePost({ ...data, status: 'draft' }))()}
               className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
             >
-              Save
+              Save as Draft
             </button>
             <button
               type="button"
-              onClick={() => handleSubmit((data) => onSubmit({ ...data, status: 'published' }))()}
+              onClick={() => handleSubmit((data) => savePost({ ...data, status: 'published' }))()}
               className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
             >
               Publish

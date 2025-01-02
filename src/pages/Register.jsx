@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { ROUTES } from '../routes/frontend_Api';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { userRegister } from '../endpoints/useEndpoints';
+import ErrorToast from '../components/ErrorToast';
+
+
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const schema = yup.object().shape({
   name: yup
@@ -13,7 +19,8 @@ const schema = yup.object().shape({
   email: yup
     .string()
     .email('Invalid email format')
-    .required('Email is required'),
+    .required('Email is required')
+    .matches(emailRegex, 'Invalid email format'), 
   password: yup
     .string()
     .required('Password is required')
@@ -24,7 +31,12 @@ const schema = yup.object().shape({
     .required('Confirm Password is required'),
 });
 
+
+
+
 const Register = () => {
+   const [toast, setToast] = useState(null);
+  const navigate= useNavigate()
   const {
     register,
     handleSubmit,
@@ -33,9 +45,19 @@ const Register = () => {
     resolver: yupResolver(schema), 
   });
 
-  const onSubmit = (data) => {
-    console.log('Form Data:', data);
-    alert('Registration Successful!');
+  const onSubmit = async (data) => {
+    try {
+      const response = await userRegister(data)
+      if (response.status == 201) {
+        setToast({ message: "register successfully", type: "sucess" });
+           localStorage.setItem("emailForVerification", data.email);
+        navigate(ROUTES.PUBLIC.OTP_VERIFICATION)
+      }
+      
+    } catch (error) {
+      setToast({ message: error, type: "error" });
+    }
+
   };
 
   return (
@@ -126,6 +148,7 @@ errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                     </p>
         </form>
       </div>
+      {toast && <ErrorToast type={toast.type} message={toast.message} />}
     </div>
   );
 };

@@ -13,7 +13,12 @@ import Logout from '@mui/icons-material/Logout';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
 
+import { useDispatch } from 'react-redux';
+import { logout } from '../redux/slices/authSlice';
+import persistStore from 'redux-persist/es/persistStore';
+
 export default function Header() {
+  const dispatch=useDispatch()
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
@@ -24,6 +29,16 @@ export default function Header() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+const handleLogout = async () => {
+  dispatch(logout());
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+
+  const persistor = persistStore(store);
+  persistor.purge();
+
+  navigate("/login", { replace: true });
+};
 
   return (
     <Box
@@ -139,7 +154,7 @@ export default function Header() {
           </ListItemIcon>
           Settings
         </MenuItem>
-        <MenuItem>
+        <MenuItem onClick={handleLogout}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>

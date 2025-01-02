@@ -1,18 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
 import { Link, useNavigate } from 'react-router-dom';
 import { ROUTES } from '../routes/frontend_Api';
+import ErrorToast from '../components/ErrorToast';
+import { useLogin } from '../endpoints/useEndpoints';
+import { useDispatch } from 'react-redux';
+import { setCredentials } from '../redux/slices/authSlice';
 
-
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const schema = yup.object().shape({
 
     email: yup
-        .string()
-        .email('Invalid email format')
-        .required('Email is required'),
+    .string()
+    .email('Invalid email format')
+    .required('Email is required')
+    .matches(emailRegex, 'Invalid email format'), 
     password: yup
         .string()
         .required('Password is required')
@@ -20,7 +25,9 @@ const schema = yup.object().shape({
 
 });
 const Login = () => {
-    const navigate=useNavigate()
+     const [toast,setToast]=useState(null)
+    const navigate = useNavigate()
+    const dispatch=useDispatch()
 
     const {
         register,
@@ -30,9 +37,32 @@ const Login = () => {
         resolver: yupResolver(schema),
     });
 
-    const onSubmit = (data) => {
-        console.log('Form Data:', data);
-       navigate(ROUTES.PROTECTED.CREATE_BLOG)
+    const onSubmit = async (data) => {
+        console.log(data);
+        
+     try {
+          const response = await useLogin(data)
+         if (response.status == 200) {
+             console.log(response.data);
+             
+       localStorage.setItem("accessToken", response.data.tokens.accessToken);
+             localStorage.setItem("refreshToken", response.data.tokens.refreshToken);
+             
+               dispatch(
+          setCredentials({
+            user: response.data.user,
+            accessToken: response.data.accessToken,
+            refreshToken: response.data.refreshToken,
+          })
+        );
+              
+           setToast({ message: "login successfully", type: "sucess" });
+            navigate(ROUTES.PROTECTED.CREATE_BLOG)
+          }
+          
+        } catch (error) {
+          setToast({ message: error, type: "error" });
+        }
     };
 
 
@@ -94,6 +124,7 @@ const Login = () => {
                     </p>
                 </form>
             </div>
+               {toast && <ErrorToast type={toast.type} message={toast.message} />}
         </div>
     )
 }

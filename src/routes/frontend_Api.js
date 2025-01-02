@@ -11,7 +11,7 @@
 
      PROFILE: "/profile",
      DASHBOARD: "/dashboard",
-     BLOG_EDITOR: "/blog",
+     CREATE_BLOG: "/blog",
     EDIT_BLOG: "/editblog/:id",
     SINGLE_BLOG: "/singleblog/:id",
 
