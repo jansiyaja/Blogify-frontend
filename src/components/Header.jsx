@@ -13,14 +13,20 @@ import Logout from '@mui/icons-material/Logout';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/slices/authSlice';
 import persistStore from 'redux-persist/es/persistStore';
+import { Link, useNavigate } from 'react-router-dom';
+import { ROUTES } from '../routes/frontend_Api';
 
 export default function Header() {
+  const navigate=useNavigate()
   const dispatch=useDispatch()
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+const { user } = useSelector((state) => state.auth);
+  console.log(user);
+  
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -34,8 +40,7 @@ const handleLogout = async () => {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
 
-  const persistor = persistStore(store);
-  persistor.purge();
+
 
   navigate("/login", { replace: true });
 };
@@ -54,20 +59,26 @@ const handleLogout = async () => {
     >
      
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              
+
+         <Link to={ROUTES.PUBLIC.HOME} style={{ textDecoration: 'none', color: 'inherit' }}>
         <Typography variant="h6"  noWrap component="div" sx={{ flexGrow: 1 ,marginRight: '20px', fontWeight: 'bold'}}>
           Blogify
         </Typography>
+        </Link>
+         <Link to={ROUTES.PUBLIC.HOME}>
         <Typography
           sx={{ marginRight: '20px', cursor: 'pointer', fontWeight: 'bold' }}
         >
           Home
-        </Typography>
+          </Typography>
+        </Link>
+        <Link to={ROUTES.PROTECTED.CREATE_BLOG}>
         <Typography
           sx={{ marginRight: '20px', cursor: 'pointer', fontWeight: 'bold' }}
         >
           Blog
-        </Typography>
+          </Typography>
+          </Link>
        
       </Box>
 
@@ -93,7 +104,7 @@ const handleLogout = async () => {
         />
       </Box>
 
-   
+     
       <Tooltip title="Account settings">
         <IconButton
           onClick={handleClick}
@@ -106,6 +117,7 @@ const handleLogout = async () => {
           <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
         </IconButton>
       </Tooltip>
+        {user ? (
       <Menu
         anchorEl={anchorEl}
         id="account-menu"
@@ -161,6 +173,11 @@ const handleLogout = async () => {
           Logout
         </MenuItem>
       </Menu>
+        ) : (
+      <Typography>
+        <Link to="/login">Login</Link>
+      </Typography>
+    )}
     </Box>
   );
 }
