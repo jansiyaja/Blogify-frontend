@@ -10,6 +10,9 @@ import CreateBlog from './pages/Blog/CreateBlog';
 import { ROUTES } from './routes/frontend_Api';
 import Otp from './pages/Otp';
 import Home from './pages/Home';
+import SingleBlog from './pages/Singleblog';
+
+import Profile from './pages/profile/Profile';
 
 function App() {
 
@@ -29,7 +32,9 @@ function App() {
 
              
             <Route element={<ProtectedRoute />}>
-               <Route path={ROUTES.PROTECTED.CREATE_BLOG} element={<CreateBlog/>} />
+              <Route path={ROUTES.PROTECTED.CREATE_BLOG} element={<CreateBlog />} />
+              <Route path={ROUTES.PROTECTED.SINGLE_BLOG} element={<SingleBlog />} />
+               <Route path={ROUTES.PROTECTED.DASHBOARD} element={<Profile />} />
                 
 {/*                
               

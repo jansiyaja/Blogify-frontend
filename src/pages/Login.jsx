@@ -45,7 +45,7 @@ const Login = () => {
          if (response.status == 200) {
              console.log(response.data);
              
-       localStorage.setItem("accessToken", response.data.tokens.accessToken);
+            localStorage.setItem("accessToken", response.data.tokens.accessToken);
              localStorage.setItem("refreshToken", response.data.tokens.refreshToken);
              
                dispatch(
@@ -57,11 +57,15 @@ const Login = () => {
         );
               
            setToast({ message: "login successfully", type: "sucess" });
-            navigate(ROUTES.PROTECTED.CREATE_BLOG)
+            navigate(ROUTES.PUBLIC.HOME)
           }
           
-        } catch (error) {
-          setToast({ message: error, type: "error" });
+     }
+     catch (error) {
+ const errorMessage = error.response?.data?.error || 'Something went wrong';
+  console.error('Error:', errorMessage);
+ 
+         setToast({ message: errorMessage, type: "error" });
         }
     };
 

@@ -69,11 +69,12 @@ const Otp = () => {
         } 
       
     
-    } catch (error) {
-      console.log(error);
-      
-       setToast({ message: "something went wrong", type: "error" });  
-    }
+    }   catch (error) {
+ const errorMessage = error.response?.data?.error || 'Something went wrong';
+  console.error('Error:', errorMessage);
+ 
+         setToast({ message: errorMessage, type: "error" });
+        }
 
   };
 

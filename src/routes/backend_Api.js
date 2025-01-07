@@ -6,10 +6,14 @@ export const API_ROUTES = {
     LOGOUT: "/users/logout",                  
   },
   PROTECTED: {
-    PROFILE: "/users/profile",              // User Profile users
-    DASHBOARD: "/users/dashboard",          // Dashboard users
-    CREATE_BLOG: "/users/blog",             // Create Blog users
-    EDIT_BLOG: "/users/blog/:id",           // Edit Blog users (with ID parameter)
-    SINGLE_BLOG: "/users/blog/:id",       
+    PROFILE: "/users/profile",   
+    
+    DASHBOARD: "/users/dashboard",          
+    CREATE_BLOG: "/users/blog",             
+    EDIT_BLOG: "/users/blog/:id",           
+    SINGLE_BLOG: "/users/singleblog",       
+    DELETE_BLOG: "/users/deleteBlog",       
+    USER_BLOGS: "/users/usersblog",       
+    USER_IMAGE: "/users/upload",       
   },
 };

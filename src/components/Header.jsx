@@ -15,7 +15,7 @@ import SearchIcon from '@mui/icons-material/Search';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/slices/authSlice';
-import persistStore from 'redux-persist/es/persistStore';
+
 import { Link, useNavigate } from 'react-router-dom';
 import { ROUTES } from '../routes/frontend_Api';
 
@@ -153,11 +153,12 @@ const handleLogout = async () => {
         }}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-      >
+        >
+             <Link to={ROUTES.PROTECTED.DASHBOARD}>
         <MenuItem>
           <Avatar /> Profile
         </MenuItem>
-       
+       </Link>
         <Divider />
 
         <MenuItem>

@@ -54,10 +54,13 @@ const Register = () => {
         navigate(ROUTES.PUBLIC.OTP_VERIFICATION)
       }
       
-    } catch (error) {
-      setToast({ message: error, type: "error" });
-    }
-
+    } 
+  catch (error) {
+ const errorMessage = error.response?.data?.error || 'Something went wrong';
+  console.error('Error:', errorMessage);
+ 
+         setToast({ message: errorMessage, type: "error" });
+        }
   };
 
   return (

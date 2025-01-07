@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import BlogPostCard from './BlogPostCard';
 import { getAllBlogs } from '../endpoints/useEndpoints';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
   const [blogPosts, setBlogPosts] = useState([]);
@@ -41,14 +42,15 @@ const Home = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {blogPosts.map((post, index) => (
-          <BlogPostCard
-            key={index}
-            heading={post.heading}
-            tag={post.tag}
-            coverImageUrl={post.coverImageUrl}
-            createdAt={post.createdAt}
-            authorId={post.authorId} 
-          />
+            <Link to={`/blog/${post.id}`} key={post.id}>
+            <BlogPostCard
+              heading={post.heading}
+              tag={post.tag}
+              coverImageUrl={post.coverImageUrl}
+              createdAt={post.createdAt}
+              authorId={post.authorId}
+            />
+          </Link>
         ))}
       </div>
     </div>

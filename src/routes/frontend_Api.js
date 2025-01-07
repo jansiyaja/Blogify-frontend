@@ -9,11 +9,11 @@
   },
    PROTECTED: {
 
-     PROFILE: "/profile",
+   
      DASHBOARD: "/dashboard",
      CREATE_BLOG: "/blog",
     EDIT_BLOG: "/editblog/:id",
-    SINGLE_BLOG: "/singleblog/:id",
+    SINGLE_BLOG: "/blog/:id",
 
   },
 
