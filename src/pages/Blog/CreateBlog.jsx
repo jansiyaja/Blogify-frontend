@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { useQuill } from 'react-quilljs';
-import 'quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { createBlog } from '../../endpoints/useEndpoints';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../../routes/frontend_Api';
@@ -21,16 +21,9 @@ const schema = yup.object().shape({
 });
 
 const CreateBlog = () => {
-  const { quill, quillRef } = useQuill();
   const [imagePreview, setImagePreview] = useState('');
-  const navigate=useNavigate()
-  const [tags, setTags] = useState([
-    'HTML',
-    'JavaScript',
-    'TypeScript',
-    'Socket.io',
-    'AWS',
-  ]);
+  const navigate = useNavigate();
+  const [tags, setTags] = useState(['HTML', 'JavaScript', 'TypeScript', 'Socket.io', 'AWS']);
 
   const {
     register,
@@ -50,46 +43,33 @@ const CreateBlog = () => {
 
   const savePost = async (isPublished) => {
     const { heading, selectedTag, coverImage, editorContent } = getValues();
-    
-   
+
     if (!editorContent || editorContent.trim() === '') {
       console.error('No valid content to save.');
       return;
     }
 
     const formData = new FormData();
-    formData.append('heading', heading);  
-    formData.append('tag', selectedTag); 
+    formData.append('heading', heading);
+    formData.append('tag', selectedTag);
     if (coverImage) {
-      formData.append('coverImage', coverImage[0]);  
+      formData.append('coverImage', coverImage[0]);
     }
-    formData.append('content', editorContent);  
+    formData.append('content', editorContent);
 
     try {
       const status = isPublished ? 'published' : 'draft';
-      formData.append('status', status);  
+      formData.append('status', status);
 
       const response = await createBlog(formData);
 
-
       if (response.status === 201) {
-        reset(); 
-        navigate(ROUTES.PUBLIC.HOME)
+        reset();
+        navigate(ROUTES.PUBLIC.HOME);
         console.log('Blog created successfully!');
-        
- 
-        if (isPublished) {
-          setToastMessage('Blog published successfully!');
-        } else {
-          setToastMessage('Blog saved as a draft!');
-        }
-        setToastType('success');
-        setToastOpen(true);
-        setShowPreview(false);
       }
     } catch (error) {
-console.log(error);
-
+      console.log(error);
     }
   };
 
@@ -133,7 +113,9 @@ console.log(error);
               type="text"
               placeholder="Heading..."
               {...register('heading')}
-              className={`w-full p-4 text-3xl font-bold border rounded-md ${errors.heading ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full p-4 text-3xl font-bold border rounded-md ${
+                errors.heading ? 'border-red-500' : 'border-gray-300'
+              }`}
             />
             {errors.heading && <p className="text-red-500 text-sm">{errors.heading.message}</p>}
           </div>
@@ -142,7 +124,9 @@ console.log(error);
             <label className="block text-lg font-medium text-gray-700">Select Tag</label>
             <select
               {...register('selectedTag')}
-              className={`w-full p-3 border rounded-md ${errors.selectedTag ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full p-3 border rounded-md ${
+                errors.selectedTag ? 'border-red-500' : 'border-gray-300'
+              }`}
             >
               <option value="">Select a tag</option>
               {tags.map((tag, index) => (
@@ -159,15 +143,12 @@ console.log(error);
             <Controller
               name="editorContent"
               control={control}
-              defaultValue=""
               render={({ field }) => (
-                <div
-                  ref={quillRef}
-                  onBlur={() => {
-                    if (quill) {
-                      field.onChange(quill.root.innerHTML.trim());
-                    }
-                  }}
+                <ReactQuill
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Write something amazing..."
+                  className="bg-white border rounded-md"
                 />
               )}
             />
