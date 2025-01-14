@@ -1,17 +1,19 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import { getBlogById, updateBlog } from '../../endpoints/useEndpoints'; // Import appropriate endpoints
+import { useNavigate, useParams } from 'react-router-dom';
+import { ROUTES } from '../../routes/frontend_Api';
 
 const schema = yup.object().shape({
   heading: yup
     .string()
     .required('Heading is required')
-    .min(10, 'Heading must be at least 10 characters')
-    .max(100, 'Heading cannot exceed 100 characters')
-    .matches(
-      /^[a-zA-Z0-9\s.,'-]+$/,
-      'Heading can only contain letters, numbers, spaces, and punctuation'
-    ),
+    .min(5, 'Heading must be at least 5 characters long')
+    .max(100, 'Heading cannot exceed 100 characters'),
   selectedTag: yup.string().required('Tag is required'),
   editorContent: yup
     .string()
@@ -22,20 +24,18 @@ const schema = yup.object().shape({
     ),
   coverImage: yup
     .mixed()
-    .test('fileType', 'Only JPG or PNG images are allowed', (value) =>
-      value && value[0]
-        ? ['image/jpeg', 'image/png'].includes(value[0].type)
-        : true
-    )
-    .test('fileSize', 'Image size must be less than 5MB', (value) =>
-      value && value[0] ? value[0].size <= 5 * 1024 * 1024 : true
-    ),
+    .test('fileType', 'Only JPG/PNG files are allowed', (value) => {
+      if (!value?.length) return true; // Skip validation if no file is uploaded
+      const file = value[0];
+      return file && (file.type === 'image/jpeg' || file.type === 'image/png');
+    }),
 });
 
-const CreateBlog = () => {
+const EditBlog = () => {
+  const { blogId } = useParams(); // Get the blog ID from route params
   const [imagePreview, setImagePreview] = useState('');
-  const navigate = useNavigate();
   const [tags, setTags] = useState(['HTML', 'JavaScript', 'TypeScript', 'Socket.io', 'AWS']);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -43,77 +43,77 @@ const CreateBlog = () => {
     control,
     formState: { errors },
     reset,
-    getValues,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       heading: '',
       selectedTag: '',
       editorContent: '',
-      coverImage: null,
     },
   });
 
+  useEffect(() => {
+    const fetchBlog = async () => {
+      try {
+        const response = await getBlogById(blogId); // Fetch the blog data
+        if (response.status === 200) {
+          const { heading, tag, content, coverImage } = response.data;
+          reset({
+            heading,
+            selectedTag: tag,
+            editorContent: content,
+          });
+          setImagePreview(coverImage); // Set the image preview
+        }
+      } catch (error) {
+        console.error('Error fetching blog data:', error);
+      }
+    };
+
+    fetchBlog();
+  }, [blogId, reset]);
+
   const savePost = async (isPublished) => {
+    const formData = new FormData();
     const { heading, selectedTag, coverImage, editorContent } = getValues();
 
-    if (!editorContent || editorContent.trim() === '') {
-      console.error('No valid content to save.');
-      return;
-    }
-
-    const formData = new FormData();
     formData.append('heading', heading);
     formData.append('tag', selectedTag);
-    if (coverImage) {
+    formData.append('content', editorContent);
+    if (coverImage && coverImage[0]) {
       formData.append('coverImage', coverImage[0]);
     }
-    formData.append('content', editorContent);
+    formData.append('status', isPublished ? 'published' : 'draft');
 
     try {
-      const status = isPublished ? 'published' : 'draft';
-      formData.append('status', status);
-
-      const response = await createBlog(formData);
-
-      if (response.status === 201) {
-        reset();
+      const response = await updateBlog(blogId, formData);
+      if (response.status === 200) {
+        console.log('Blog updated successfully!');
         navigate(ROUTES.PUBLIC.HOME);
-        console.log('Blog created successfully!');
       }
     } catch (error) {
-      console.log(error);
+      console.error('Error updating blog:', error);
     }
   };
 
   return (
-    <div className="min-h-screen bg-blue-50 flex items-center justify-center top-4">
+    <div className="min-h-screen bg-blue-50 flex items-center justify-center">
       <div className="w-full max-w-4xl p-8 bg-white shadow-lg rounded-lg">
         <form onSubmit={handleSubmit(savePost)}>
           <div className="flex justify-between mb-4 mt-4">
-            <h1 className="text-2xl font-bold text-gray-800">Create a New Blog Post</h1>
+            <h1 className="text-2xl font-bold text-gray-800">Edit Blog Post</h1>
           </div>
 
           <div>
-            <label className="block text-lg font-medium text-gray-700 mb-2">Add Cover Image</label>
+            <label className="block text-lg font-medium text-gray-700 mb-2">Edit Cover Image</label>
             <input
               type="file"
-              accept="image/*"
+              accept="image/jpeg, image/png"
               {...register('coverImage')}
-              className={`block w-full text-sm text-gray-500 border border-gray-300 rounded-md mb-2 ${
-                errors.coverImage ? 'border-red-500' : ''
-              }`}
+              className="block w-full text-sm text-gray-500 border border-gray-300 rounded-md mb-2"
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  if (!['image/jpeg', 'image/png'].includes(file.type)) {
-                    alert('Only JPG or PNG images are allowed');
-                    return;
-                  }
-                  if (file.size > 5 * 1024 * 1024) {
-                    alert('Image size must be less than 5MB');
-                    return;
-                  }
                   const reader = new FileReader();
                   reader.onloadend = () => {
                     setImagePreview(reader.result);
@@ -124,12 +124,12 @@ const CreateBlog = () => {
                 }
               }}
             />
-            {errors.coverImage && <p className="text-red-500 text-sm">{errors.coverImage.message}</p>}
             {imagePreview && (
               <div className="w-full h-48 border border-gray-300 rounded-md overflow-hidden">
                 <img src={imagePreview} alt="Cover Preview" className="w-full h-full object-cover" />
               </div>
             )}
+            {errors.coverImage && <p className="text-red-500 text-sm">{errors.coverImage.message}</p>}
           </div>
 
           <div className="mt-4">
@@ -182,17 +182,17 @@ const CreateBlog = () => {
           <div className="flex justify-between mt-4">
             <button
               type="button"
-              onClick={() => handleSubmit((data) => savePost({ ...data, status: 'draft' }))()}
+              onClick={() => handleSubmit((data) => savePost(false))()}
               className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
             >
               Save as Draft
             </button>
             <button
               type="button"
-              onClick={() => handleSubmit((data) => savePost({ ...data, status: 'published' }))()}
+              onClick={() => handleSubmit((data) => savePost(true))()}
               className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
             >
-              Publish
+              Update Blog
             </button>
           </div>
         </form>
@@ -201,4 +201,4 @@ const CreateBlog = () => {
   );
 };
 
-export default CreateBlog;
+export default EditBlog;
