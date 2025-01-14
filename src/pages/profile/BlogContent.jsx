@@ -5,7 +5,7 @@ import {
   List, ListItem, ListItemAvatar, ListItemText, Divider, Box, Typography, Dialog, DialogContent, DialogActions, TextField, Button
 } from '@mui/material';
 import { useSelector } from 'react-redux';
-import { deleteSingleBlog, userBlogs, updateSingleBlog } from '../../endpoints/useEndpoints';
+import { deleteSingleBlog } from '../../endpoints/useEndpoints';
 import ErrorToast from '../../components/ErrorToast';
 
 export const BlogsContent = () => {
