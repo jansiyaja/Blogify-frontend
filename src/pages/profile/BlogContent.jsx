@@ -5,7 +5,7 @@ import {
   List, ListItem, ListItemAvatar, ListItemText, Divider, Box, Typography, Dialog, DialogContent, DialogActions, TextField, Button
 } from '@mui/material';
 import { useSelector } from 'react-redux';
-import { deleteSingleBlog } from '../../endpoints/useEndpoints';
+import { deleteSingleBlog, userBlogs } from '../../endpoints/useEndpoints';
 import ErrorToast from '../../components/ErrorToast';
 
 export const BlogsContent = () => {
@@ -30,46 +30,29 @@ export const BlogsContent = () => {
     }
   }, [user]);
 
-  const handleDeleteBlog = async (blogId) => {
-    try {
-      const response = await deleteSingleBlog(blogId);
-      if (response.status === 200) {
-        setToast({ message: 'Deleted successfully', type: 'success' });
-        setBlogs(blogs.filter((blog) => blog.id !== blogId));
-      }
-    } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Something went wrong';
-      setToast({ message: errorMessage, type: 'error' });
+ const handleDeleteBlog = async (blogId) => {
+  try {
+    const response = await deleteSingleBlog(blogId);
+    if (response.status === 200) {
+      setToast({ message: 'Deleted successfully', type: 'success' });
+      
+      setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== blogId));
     }
-  };
+  } catch (error) {
+    const errorMessage = error.response?.data?.error || 'Something went wrong';
+    setToast({ message: errorMessage, type: 'error' });
+  }
+};
 
-  const handleEditBlog = (blog) => {
-    setEditBlog(blog);
-    setEditForm({ heading: blog.heading, description: blog.description, coverImageUrl: blog.coverImageUrl });
-  };
+
+
 
   const handleEditFormChange = (e) => {
     const { name, value } = e.target;
     setEditForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleUpdateBlog = async () => {
-    try {
-      const response = await updateSingleBlog(editBlog.id, editForm);
-      if (response.status === 200) {
-        setToast({ message: 'Updated successfully', type: 'success' });
-        setBlogs((prev) =>
-          prev.map((blog) =>
-            blog.id === editBlog.id ? { ...blog, ...editForm } : blog
-          )
-        );
-        setEditBlog(null);
-      }
-    } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Something went wrong';
-      setToast({ message: errorMessage, type: 'error' });
-    }
-  };
+
 
   return (
     <Card sx={{ maxWidth: 800, margin: '20px auto' }}>
@@ -82,9 +65,7 @@ export const BlogsContent = () => {
                 alignItems="flex-start"
                 secondaryAction={
                   <>
-                    <IconButton edge="end" onClick={() => handleEditBlog(blog)}>
-                      <Edit />
-                    </IconButton>
+                    
                     <IconButton edge="end" onClick={() => handleDeleteBlog(blog.id)}>
                       <Trash2 />
                     </IconButton>
@@ -156,9 +137,7 @@ export const BlogsContent = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditBlog(null)}>Cancel</Button>
-          <Button onClick={handleUpdateBlog} variant="contained" color="primary">
-            Save
-          </Button>
+          
         </DialogActions>
       </Dialog>
     </Card>

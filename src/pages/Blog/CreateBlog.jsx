@@ -88,6 +88,8 @@ const CreateBlog = () => {
         console.log('Blog created successfully!');
       }
     } catch (error) {
+      console.log("error");
+      
       console.log(error);
     }
   };
