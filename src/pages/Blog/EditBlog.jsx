@@ -4,7 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { getBlogById, updateBlog } from '../../endpoints/useEndpoints'; // Import appropriate endpoints
+import { getBlogById, updateBlog } from '../../endpoints/useEndpoints'; 
 import { useNavigate, useParams } from 'react-router-dom';
 import { ROUTES } from '../../routes/frontend_Api';
 
@@ -25,16 +25,16 @@ const schema = yup.object().shape({
   coverImage: yup
     .mixed()
     .test('fileType', 'Only JPG/PNG files are allowed', (value) => {
-      if (!value?.length) return true; // Skip validation if no file is uploaded
+      if (!value?.length) return true; 
       const file = value[0];
       return file && (file.type === 'image/jpeg' || file.type === 'image/png');
     }),
 });
 
 const EditBlog = () => {
-  const { blogId } = useParams(); // Get the blog ID from route params
+  const { blogId } = useParams(); 
   const [imagePreview, setImagePreview] = useState('');
-  const [tags, setTags] = useState(['HTML', 'JavaScript', 'TypeScript', 'Socket.io', 'AWS']);
+ const [tags, setTags] = useState(['Dinner', 'Desert', 'BreakFast', 'Lunch', 'Healthy']);
   const navigate = useNavigate();
 
   const {

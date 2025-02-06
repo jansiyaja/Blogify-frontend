@@ -13,6 +13,8 @@ import Home from './pages/Home';
 import SingleBlog from './pages/Singleblog';
 
 import Profile from './pages/profile/Profile';
+import Tips from './pages/profile/Tips';
+import About from './pages/profile/About';
 
 function App() {
 
@@ -25,27 +27,22 @@ function App() {
             <Route path={ROUTES.PUBLIC.REGISTER} element={<Register />} />
             <Route path={ROUTES.PUBLIC.LOGIN} element={<Login/>} />
             <Route path={ROUTES.PUBLIC.OTP_VERIFICATION} element={<Otp />} />
-               <Route path={ROUTES.PUBLIC.HOME} element={<Home/>} />
+            <Route path={ROUTES.PUBLIC.ABOUT} element={<About />} />
+            
            
            
               
 
              
             <Route element={<ProtectedRoute />}>
+              <Route path={ROUTES.PUBLIC.HOME} element={<Home/>} />
               <Route path={ROUTES.PROTECTED.CREATE_BLOG} element={<CreateBlog />} />
               <Route path={ROUTES.PROTECTED.SINGLE_BLOG} element={<SingleBlog />} />
                <Route path={ROUTES.PROTECTED.DASHBOARD} element={<Profile />} />
+               <Route path={ROUTES.PROTECTED.TIPS} element={<Tips />} />
                 
-{/*                
               
 
-                <Route path={ROUTES.PROTECTED.PROFILE} element={<UserProfile />} />
-            
-                <Route path={ROUTES.PROTECTED.DASHBOARD} element={<Dashboard />} />
- 
-                <Route path={ROUTES.PROTECTED.BLOG_EDITOR} element={<Blog page="blogeditor" />} />
-                <Route path={ROUTES.PROTECTED.EDIT_BLOG} element={<EditBlogPost />} />
-                <Route path={ROUTES.PROTECTED.SINGLE_BLOG} element={<Blog page="singleblog" />} /> */}
 
               </Route>
            </Route>

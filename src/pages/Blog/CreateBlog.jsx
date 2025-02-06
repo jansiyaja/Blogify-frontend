@@ -41,7 +41,7 @@ const schema = yup.object().shape({
 const CreateBlog = () => {
   const [imagePreview, setImagePreview] = useState('');
   const navigate = useNavigate();
-  const [tags, setTags] = useState(['HTML', 'JavaScript', 'TypeScript', 'Socket.io', 'AWS']);
+  const [tags, setTags] = useState(['Dinner', 'Desert', 'BreakFast', 'Lunch', 'Healthy']);
 
   const {
     register,
