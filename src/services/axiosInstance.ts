@@ -9,7 +9,7 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
 }
 
-const baseURL = "ttps://blogify-backend-ddtm.onrender.com";
+const baseURL = "https://blogify-backend-ddtm.onrender.com";
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL,
