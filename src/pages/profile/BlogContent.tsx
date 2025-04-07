@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ChangeEvent } from 'react';
 import { Trash2, Edit } from 'lucide-react';
 import {
   Card,
@@ -15,17 +15,33 @@ import {
   Box,
 } from '@mui/material';
 import { useSelector } from 'react-redux';
+
 import { deleteSingleBlog, userBlogs } from '../../endpoints/useEndpoints';
 import ErrorToast from '../../components/ErrorToast';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import { RootState } from '../../redux/store/store';
 
-export const BlogsContent = () => {
-  const { user } = useSelector((state) => state.auth);
-  const [blogs, setBlogs] = useState([]);
-  const [toast, setToast] = useState(null);
-  const [editBlog, setEditBlog] = useState(null);
-  const [editForm, setEditForm] = useState({
+// Interfaces
+interface Blog {
+  _id: string;
+  heading: string;
+  tag?: string;
+  content: string;
+  coverImageUrl: string;
+}
+
+interface Toast {
+  message: string;
+  type: 'success' | 'error';
+}
+
+export const BlogsContent: React.FC = () => {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [toast, setToast] = useState<Toast | null>(null);
+  const [editBlog, setEditBlog] = useState<Blog | null>(null);
+  const [editForm, setEditForm] = useState<Omit<Blog, '_id'>>({
     heading: '',
     tag: '',
     content: '',
@@ -35,7 +51,8 @@ export const BlogsContent = () => {
   useEffect(() => {
     const fetchUserBlogs = async () => {
       try {
-        const response = await userBlogs(user.id);
+        const response = await userBlogs(user?.id);
+        
         setBlogs(response);
       } catch (error) {
         console.error('Error fetching blogs:', error);
@@ -47,30 +64,30 @@ export const BlogsContent = () => {
     }
   }, [user]);
 
-  const handleDeleteBlog = async (blogId) => {
+  const handleDeleteBlog = async (blogId: string) => {
     try {
       const response = await deleteSingleBlog(blogId);
       if (response.status === 200) {
         setToast({ message: 'Deleted successfully', type: 'success' });
-        setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== blogId));
+        setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog._id !== blogId));
       }
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage = error.response?.data?.error || 'Something went wrong';
       setToast({ message: errorMessage, type: 'error' });
     }
   };
 
-  const handleEditFormChange = (e) => {
+  const handleEditFormChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEditForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleOpenEditDialog = (blog) => {
+  const handleOpenEditDialog = (blog: Blog) => {
     setEditBlog(blog);
     setEditForm({
       heading: blog.heading,
       tag: blog.tag || '',
-      content: blog.content, // HTML content from QuillJS
+      content: blog.content,
       coverImageUrl: blog.coverImageUrl,
     });
   };
@@ -81,7 +98,6 @@ export const BlogsContent = () => {
 
   return (
     <Box className="container mx-auto px-4 py-8">
-      {/* Static Header */}
       <Typography variant="h4" className="font-bold text-center mb-6">
         Your Delicious Food Blog Posts
       </Typography>
@@ -89,10 +105,9 @@ export const BlogsContent = () => {
         Manage your latest recipes, tips, and food stories below.
       </Typography>
 
-      {/* Responsive Flex Layout */}
       <div className="flex flex-wrap -mx-2">
         {blogs.map((blog) => (
-          <div key={blog.id} className="w-full sm:w-1/2 md:w-1/3 p-2">
+          <div key={blog._id} className="w-full sm:w-1/2 md:w-1/3 p-2">
             <Card className="relative rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 h-80">
               <CardMedia
                 component="img"
@@ -101,28 +116,24 @@ export const BlogsContent = () => {
                 alt={blog.heading}
                 className="object-cover"
               />
-            
               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-50" />
-          
               <CardContent className="absolute bottom-0 z-10 text-white">
                 <Typography variant="h6" className="font-bold">
                   {blog.heading}
                 </Typography>
                 <Typography variant="body2">
-                   <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-             {blog.content?.length > 100
-                    ? blog.content.slice(0, 100) + '...'
-                    : blog.content || ''}
-            </ReactMarkdown>
-                 
+                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                    {blog.content?.length > 100
+                      ? blog.content.slice(0, 100) + '...'
+                      : blog.content || ''}
+                  </ReactMarkdown>
                 </Typography>
               </CardContent>
-      
               <CardActions className="absolute top-2 right-2 z-10">
                 <IconButton onClick={() => handleOpenEditDialog(blog)} className="text-white">
                   <Edit />
                 </IconButton>
-                <IconButton onClick={() => handleDeleteBlog(blog.id)} className="text-white">
+                <IconButton onClick={() => handleDeleteBlog(blog._id)} className="text-white">
                   <Trash2 />
                 </IconButton>
               </CardActions>
@@ -133,7 +144,6 @@ export const BlogsContent = () => {
 
       {toast && <ErrorToast type={toast.type} message={toast.message} />}
 
- 
       <Dialog open={!!editBlog} onClose={handleCloseEditDialog} maxWidth="md" fullWidth>
         <DialogContent>
           <TextField
@@ -170,19 +180,14 @@ export const BlogsContent = () => {
             multiline
             rows={8}
           />
-          
+
           <Box className="mt-4 p-4 border rounded">
             <Typography variant="subtitle1" className="mb-2">
               Preview:
             </Typography>
-
-             <ReactMarkdown
-       
-          rehypePlugins={[rehypeRaw]}
-      >
-          {editForm.content}
-      </ReactMarkdown>
-           
+            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+              {editForm.content}
+            </ReactMarkdown>
           </Box>
         </DialogContent>
         <DialogActions>

@@ -8,15 +8,13 @@ import { verifyOTP } from '../endpoints/useEndpoints';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../routes/frontend_Api';
 
-const Otp = () => {
-  const [timer, setTimer] = useState(60);
-  const [showResend, setShowResend] = useState(false);
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const inputRefs = useRef([]);
-  const [toast, setToast] = useState(null)
-  const navigate=useNavigate()
-
-  
+const Otp: React.FC = () => {
+  const [timer, setTimer] = useState<number>(60);
+  const [showResend, setShowResend] = useState<boolean>(false);
+  const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const countdown = setInterval(() => {
@@ -31,21 +29,21 @@ const Otp = () => {
     return () => clearInterval(countdown);
   }, [timer]);
 
-  const handleChange = (index, value) => {
-    if (isNaN(value)) return;
+  const handleChange = (index: number, value: string) => {
+    if (isNaN(Number(value))) return;
 
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    if (value !== '' && index < 5) {
-      inputRefs.current[index + 1].focus();
+    if (value !== '' && index < 5 && inputRefs.current[index + 1]) {
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
-  const handleKeyDown = (index, e) => {
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && index > 0 && otp[index] === '') {
-      inputRefs.current[index - 1].focus();
+      inputRefs.current[index - 1]?.focus();
     }
   };
 
@@ -57,25 +55,25 @@ const Otp = () => {
 
   const handleVerify = async () => {
     const email = localStorage.getItem("emailForVerification");
-   
-    
-    const otpString = otp.join('');
-    console.log('Verifying OTP:', otpString);
-    try {
-      const response = await verifyOTP({ otpString,email })
-        if(response.status ==201){
-          setToast({ message: "verified successfully", type: "success" });
-          navigate(ROUTES.PUBLIC.LOGIN)
-        } 
-      
-    
-    }   catch (error) {
- const errorMessage = error.response?.data?.error || 'Something went wrong';
-  console.error('Error:', errorMessage);
- 
-         setToast({ message: errorMessage, type: "error" });
-        }
 
+    if (!email) {
+      setToast({ message: 'No email found in localStorage', type: 'error' });
+      return;
+    }
+
+    const otpString = otp.join('');
+    try {
+      const response = await verifyOTP({ otpString, email });
+
+      if (response.status === 201) {
+        setToast({ message: "Verified successfully", type: "success" });
+        navigate(ROUTES.PUBLIC.LOGIN);
+      }
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.error || 'Something went wrong';
+      console.error('Error:', errorMessage);
+      setToast({ message: errorMessage, type: "error" });
+    }
   };
 
   return (
@@ -138,7 +136,7 @@ const Otp = () => {
           </div>
         </CardContent>
       </Card>
-         {toast && <ErrorToast type={toast.type} message={toast.message} />}
+      {toast && <ErrorToast type={toast.type} message={toast.message} />}
     </div>
   );
 };

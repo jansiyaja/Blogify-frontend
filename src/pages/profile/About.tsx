@@ -1,7 +1,7 @@
-import React from "react";
+import React, { FC } from "react";
 import { FaFacebook, FaInstagram, FaPinterest, FaYoutube } from "react-icons/fa";
 
-const About = () => {
+const About: FC = () => {
   return (
     <div className="container mx-auto p-6 flex flex-col items-center text-center">
       <img
@@ -16,16 +16,16 @@ const About = () => {
       </p>
 
       <div className="flex space-x-4 mt-6">
-        <a href="#" className="text-gray-600 hover:text-green-600 transition">
+        <a href="#" className="text-gray-600 hover:text-green-600 transition" aria-label="Facebook">
           <FaFacebook size={24} />
         </a>
-        <a href="#" className="text-gray-600 hover:text-green-600 transition">
+        <a href="#" className="text-gray-600 hover:text-green-600 transition" aria-label="Instagram">
           <FaInstagram size={24} />
         </a>
-        <a href="#" className="text-gray-600 hover:text-green-600 transition">
+        <a href="#" className="text-gray-600 hover:text-green-600 transition" aria-label="Pinterest">
           <FaPinterest size={24} />
         </a>
-        <a href="#" className="text-gray-600 hover:text-green-600 transition">
+        <a href="#" className="text-gray-600 hover:text-green-600 transition" aria-label="YouTube">
           <FaYoutube size={24} />
         </a>
       </div>

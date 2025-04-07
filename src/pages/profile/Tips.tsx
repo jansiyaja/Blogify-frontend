@@ -1,7 +1,13 @@
 import React, { useState } from "react";
-import { X } from "lucide-react"; 
+import { X } from "lucide-react";
 
-const cookingTips = [
+interface Tip {
+  title: string;
+  description: string;
+  image: string;
+}
+
+const cookingTips: Tip[] = [
   {
     title: "Knife Skills 101",
     description:
@@ -22,10 +28,10 @@ const cookingTips = [
   },
 ];
 
-const TipsPage = () => {
-  const [selectedTip, setSelectedTip] = useState(null);
+const TipsPage: React.FC = () => {
+  const [selectedTip, setSelectedTip] = useState<Tip | null>(null);
 
-  const handleOpenModal = (tip) => {
+  const handleOpenModal = (tip: Tip) => {
     setSelectedTip(tip);
   };
 
@@ -38,6 +44,7 @@ const TipsPage = () => {
       <h1 className="text-4xl font-bold text-gray-800 text-center mb-8">
         Cooking Tips & Techniques
       </h1>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cookingTips.map((tip, index) => (
           <div
@@ -48,13 +55,11 @@ const TipsPage = () => {
             <img
               src={tip.image}
               alt={tip.title}
-              className="w-full h-80 object-cover" 
+              className="w-full h-80 object-cover"
             />
             <div className="p-4">
               <h3 className="text-xl font-semibold text-gray-800">{tip.title}</h3>
-              <p className="text-gray-600 mt-2 line-clamp-2">
-                {tip.description}
-              </p>
+              <p className="text-gray-600 mt-2 line-clamp-2">{tip.description}</p>
             </div>
           </div>
         ))}
@@ -74,16 +79,16 @@ const TipsPage = () => {
             <img
               src={selectedTip.image}
               alt={selectedTip.title}
-              className="w-full h-80 object-cover rounded-lg mb-6" 
+              className="w-full h-80 object-cover rounded-lg mb-6"
             />
             <h2 className="text-3xl font-bold text-gray-800 mb-4">
               {selectedTip.title}
             </h2>
-            <p className="text-gray-600 mb-4">
-              {selectedTip.description}
-            </p>
+            <p className="text-gray-600 mb-4">{selectedTip.description}</p>
             <p className="text-gray-500">
-              For more in-depth techniques and tips, be sure to check out our comprehensive guides and video tutorials that cover a wide range of cooking skills and kitchen hacks.
+              For more in-depth techniques and tips, be sure to check out our
+              comprehensive guides and video tutorials that cover a wide range of
+              cooking skills and kitchen hacks.
             </p>
           </div>
         </div>

@@ -13,7 +13,7 @@ export const API_ROUTES = {
     EDIT_BLOG: "/users/blog/:id",           
     SINGLE_BLOG: "/users/singleblog",       
     DELETE_BLOG: "/users/deleteBlog",       
-    USER_BLOGS: "/users/usersblog",       
+    USER_BLOGS: "/users/usersblog/",       
     USER_IMAGE: "/users/upload",       
   },
 };

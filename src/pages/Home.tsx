@@ -3,31 +3,38 @@ import BlogPostCard from './BlogPostCard';
 import { getAllBlogs } from '../endpoints/useEndpoints';
 import { Link } from 'react-router-dom';
 
-const Home = () => {
-  const [blogPosts, setBlogPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+interface BlogPost {
+  _id: string;
+  heading: string;
+  tag: string;
+  coverImageUrl: string;
+  createdAt: string;
+  authorId: string;
+}
 
+const Home: React.FC = () => {
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const collections = [
-  "Weeknight Dinners",
-  "Healthy Breakfasts",
-  "Decadent Desserts",
+  const collections: string[] = [
+    "Weeknight Dinners",
+    "Healthy Breakfasts",
+    "Decadent Desserts",
   ];
-  
-  const categories = [
+
+  const categories: string[] = [
     'BreakFast',
     'Lunch',
     'Dinner',
     'Dessert'
-  ]
-  
+  ];
 
   useEffect(() => {
     const fetchBlogPosts = async () => {
       try {
-        const response = await getAllBlogs();
-        
+        const response: BlogPost[] = await getAllBlogs();
+        console.log("res",response)
         setBlogPosts(response);
         setLoading(false);
       } catch (err) {
@@ -57,7 +64,7 @@ const Home = () => {
 
   return (
     <div className="container mx-auto p-4">
-    
+
       <div className="relative h-96 mb-12 rounded-lg overflow-hidden">
         <img
           src={blogPosts[10]?.coverImageUrl || 'https://foodieheaven.s3.eu-north-1.amazonaws.com/pie.jpg'}
@@ -73,7 +80,7 @@ const Home = () => {
             {blogPosts[0]?.tag || 'Delicious Recipes & Cooking Tips'}
           </p>
           <Link
-            to={`/blog/${blogPosts[0]?.id}`}
+            to={`/blog/${blogPosts[0]?._id}`}
             className="mt-4 inline-block bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition duration-300"
           >
             Read More
@@ -85,38 +92,33 @@ const Home = () => {
         <h3 className="text-2xl font-semibold mb-6">Popular Categories</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {categories.map((collection) => {
-             
-         const fileName = collection.replace(/ /g, '+');
-        
+            const fileName = collection.replace(/ /g, '+');
             const s3Url = `https://foodieheaven.s3.eu-north-1.amazonaws.com/${fileName}.jpg`;
-            
-                    return (
-          <div key={collection} className="relative h-48 rounded-lg overflow-hidden group">
-            <img
-              src={s3Url}
-              alt={collection}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <span className="text-white text-xl font-bold">{collection}</span>
-            </div>
-          </div>
-        );
-      })}
-            
+
+            return (
+              <div key={collection} className="relative h-48 rounded-lg overflow-hidden group">
+                <img
+                  src={s3Url}
+                  alt={collection}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <span className="text-white text-xl font-bold">{collection}</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-   
       <div className="flex flex-col md:flex-row gap-6">
-      
         <div className="md:w-2/3">
           <h2 className="text-3xl font-semibold mb-6">Latest Blog Posts</h2>
           <div className="space-y-6">
             {blogPosts.map((post) => (
               <Link
-                to={`/blog/${post.id}`}
-                key={post.id}
+                to={`/blog/${post._id}`}
+                key={post._id}
                 className="block hover:scale-105 transition-transform duration-300"
               >
                 <BlogPostCard
@@ -125,41 +127,36 @@ const Home = () => {
                   coverImageUrl={post.coverImageUrl}
                   createdAt={post.createdAt}
                   authorId={post.authorId}
-
                 />
               </Link>
             ))}
           </div>
         </div>
 
-    
         <div className="md:w-1/3 space-y-12">
-     
           <div>
             <h2 className="text-3xl font-semibold mb-6">Recipe Collections</h2>
-             <div className="grid grid-cols-1 gap-6">
-           {collections.map((collection) => {
-      
-        const fileName = collection.replace(/ /g, '+');
-        
-        const s3Url = `https://foodieheaven.s3.eu-north-1.amazonaws.com/${fileName}.jpg`;
-        return (
-          <div key={collection} className="relative h-48 rounded-lg overflow-hidden group">
-            <img
-              src={s3Url}
-              alt={collection}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-              <span className="text-white text-xl font-bold">{collection}</span>
+            <div className="grid grid-cols-1 gap-6">
+              {collections.map((collection) => {
+                const fileName = collection.replace(/ /g, '+');
+                const s3Url = `https://foodieheaven.s3.eu-north-1.amazonaws.com/${fileName}.jpg`;
+
+                return (
+                  <div key={collection} className="relative h-48 rounded-lg overflow-hidden group">
+                    <img
+                      src={s3Url}
+                      alt={collection}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                      <span className="text-white text-xl font-bold">{collection}</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        );
-      })}
-    </div>
-          </div>
 
-        
           <div>
             <h2 className="text-3xl font-semibold mb-6">Cooking Tips &amp; Techniques</h2>
             <div className="space-y-6">
@@ -197,12 +194,11 @@ const Home = () => {
         </div>
       </div>
 
-
       <div className="mb-12 text-center">
         <h2 className="text-3xl font-semibold mb-4">Join Our Community</h2>
         <p className="mb-4">Share your own recipes and kitchen tips with fellow food lovers.</p>
         <Link
-         
+          to="/community"
           className="inline-block bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition duration-300"
         >
           Get Involved

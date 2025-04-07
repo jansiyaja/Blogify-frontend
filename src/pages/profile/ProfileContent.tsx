@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import { Camera, Edit2, Save } from 'lucide-react';
 import {
   Card,
@@ -13,53 +13,63 @@ import {
 import { useSelector } from 'react-redux';
 import { editProfile } from '../../endpoints/useEndpoints';
 import ErrorToast from '../../components/ErrorToast';
+import { RootState } from '../../redux/store/store';
 
-export const ProfileContent = () => {
-  const { user } = useSelector((state) => state.auth);
+interface ProfileState {
+  name: string;
+  email: string;
+  about: string;
+  image: string;
+  imageFile: File | null;
+}
 
-  const [toast, setToast] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState({
-    name: user.name || '',
-    email: user.email || '',
-    about: user.about || '',
-    image: user.image || '',
-    imageFile: null, 
+interface Toast {
+  message: string;
+  type: 'error' | 'success';
+}
+
+export const ProfileContent: React.FC = () => {
+  const { user } = useSelector((state: RootState) => state.auth);
+
+  const [toast, setToast] = useState<Toast | null>(null);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [profile, setProfile] = useState<ProfileState>({
+    name: user?.name || '',
+    email: user?.email || '',
+    about: user?.about || '',
+    image: user?.image || '',
+    imageFile: null,
   });
 
   const handleProfileUpdate = async () => {
     try {
-      const updatedProfile = { ...profile };
       const formData = new FormData();
-
-      formData.append('name', updatedProfile.name);
-      formData.append('email', updatedProfile.email);
-      formData.append('about', updatedProfile.about);
-
- 
+      formData.append('name', profile.name);
+      formData.append('email', profile.email);
+      formData.append('about', profile.about);
       if (profile.imageFile) {
-        formData.append('image', profile.imageFile);  
+        formData.append('image', profile.imageFile);
       }
 
-      const response = await editProfile(formData); 
+      const response = await editProfile(formData);
       console.log(response);
       setIsEditing(false);
-
-    } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Something went wrong';
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.error || 'Something went wrong';
       console.error('Error:', errorMessage);
       setToast({ message: errorMessage, type: 'error' });
     }
   };
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
       const previewImage = URL.createObjectURL(file);
       setProfile((prevProfile) => ({
         ...prevProfile,
-        image: previewImage, 
-        imageFile: file, 
+        image: previewImage,
+        imageFile: file,
       }));
     }
   };
@@ -78,7 +88,7 @@ export const ProfileContent = () => {
         <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
           <Box position="relative">
             <Avatar
-              src={profile.image || user.image}
+              src={profile.image || user?.image}
               alt="Profile"
               sx={{ width: 128, height: 128 }}
             />

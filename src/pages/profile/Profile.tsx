@@ -3,12 +3,12 @@ import { User, BookOpen } from 'lucide-react';
 import { ProfileContent } from './ProfileContent';
 import { BlogsContent } from './BlogContent';
 
-const Profile = () => {
-  const [activeTab, setActiveTab] = useState(0);
+const Profile: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<number>(0);
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-     
+      {/* Sidebar for large screens */}
       <div className="hidden lg:flex lg:w-60 bg-white p-4">
         <div className="flex flex-col">
           <button
@@ -36,11 +36,12 @@ const Profile = () => {
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="flex-1 p-8">
         {activeTab === 0 ? <ProfileContent /> : <BlogsContent />}
       </div>
 
-  
+      {/* Bottom Navigation for mobile */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white shadow-md">
         <div className="flex justify-around p-2">
           <button
